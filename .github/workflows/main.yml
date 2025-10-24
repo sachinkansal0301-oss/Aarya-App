@@ -8,7 +8,8 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-    - uses: actions/checkout@v4
+    - name: Checkout repo
+      uses: actions/checkout@v4
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -27,14 +28,26 @@ jobs:
     - name: Install Cordova
       run: npm install -g cordova
 
+    # 👉 Create a fresh Cordova project and copy your app files into it
+    - name: Prepare Cordova project
+      run: |
+        rm -rf aarya
+        cordova create aarya com.aarya.superapp AaryaApp
+        cp -r www aarya/www
+        cp config.xml aarya/config.xml
+
     - name: Add Android platform
-      run: cordova platform add android
+      run: |
+        cd aarya
+        cordova platform add android
 
-    - name: Build APK
-      run: cordova build android --debug
+    - name: Build APK (debug)
+      run: |
+        cd aarya
+        cordova build android --debug
 
-    - name: Upload APK
+    - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
         name: AaryaApp-debug.apk
-        path: platforms/android/app/build/outputs/apk/debug/app-debug.apk
+        path: aarya/platforms/android/app/build/outputs/apk/debug/app-debug.apk
