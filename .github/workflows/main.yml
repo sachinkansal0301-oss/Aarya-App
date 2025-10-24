@@ -1,3 +1,4 @@
+
 name: Build Aarya App APK
 
 on:
@@ -11,8 +12,6 @@ jobs:
     steps:
     - name: Checkout repo
       uses: actions/checkout@v4
-      with:
-        fetch-depth: 0
 
     - name: Set up Node.js
       uses: actions/setup-node@v4
@@ -28,15 +27,6 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Show env (debug)
-      run: |
-        echo "JAVA_HOME=$JAVA_HOME"
-        echo "ANDROID_SDK_ROOT=$ANDROID_SDK_ROOT"
-        sdkmanager --version || true
-        node -v
-        npm -v
-
-    # 👉 जरूरी और stable SDK पैकेज
     - name: Install required Android SDK packages
       run: |
         yes | sdkmanager --licenses
@@ -45,18 +35,41 @@ jobs:
     - name: Install Cordova (CLI stable)
       run: npm install -g cordova@12.0.0
 
-    # 👉 नया Cordova प्रोजेक्ट बनाओ + हमारी files कॉपी करो
+    # ✅ यह स्टेप सबसे महत्वपूर्ण है: प्रोजेक्ट बनाएँ + copy को सुरक्षित तरीके से करें
     - name: Prepare Cordova project
+      shell: bash
       run: |
         set -e
+        echo "Listing repo root:"
+        ls -la
+
+        # 1) Fresh Cordova app
         rm -rf aarya
         cordova create aarya com.aarya.superapp AaryaApp
-        cp -r www aarya/www
-        cp config.xml aarya/config.xml
-        ls -la aarya
+
+        echo "Listing default aarya/www:"
+        ls -la aarya/www || true
+
+        # 2) Ensure our www exists
+        if [ ! -d "www" ]; then
+          echo "ERROR: repo/www not found"; exit 1;
+        fi
+
+        # 3) Replace default www with our www (clean + copy)
+        rm -rf aarya/www/*
+        shopt -s dotglob
+        cp -r www/* aarya/www/
+
+        # 4) Copy config.xml if present
+        if [ -f "config.xml" ]; then
+          cp -f config.xml aarya/config.xml
+        else
+          echo "WARNING: config.xml not found at repo root (using Cordova default)"
+        fi
+
+        echo "After copy, aarya/www contains:"
         ls -la aarya/www
 
-    # 👉 Android प्लेटफ़ॉर्म add (stable cordova-android)
     - name: Add Android platform
       run: |
         set -e
@@ -64,7 +77,6 @@ jobs:
         cordova platform add android@12.0.1
         cordova requirements
 
-    # 👉 Build (debug)
     - name: Build APK (debug)
       run: |
         set -e
@@ -72,7 +84,6 @@ jobs:
         cordova build android --debug --no-interactive
         ls -la platforms/android/app/build/outputs/apk/debug || true
 
-    # 👉 Artifact upload
     - name: Upload APK artifact
       uses: actions/upload-artifact@v4
       with:
