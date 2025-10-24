@@ -25,10 +25,16 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
 
-    - name: Install Cordova
-      run: npm install -g cordova
+    # 👉 जरूरी Android SDK packages install (ये missing होते हैं)
+    - name: Install required Android SDK packages
+      run: |
+        yes | sdkmanager --licenses
+        sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
 
-    # 👉 Create a fresh Cordova project and copy your app files into it
+    - name: Install Cordova
+      run: npm install -g cordova@latest
+
+    # 👉 नया Cordova प्रोजेक्ट बनाओ और हमारी files कॉपी करो
     - name: Prepare Cordova project
       run: |
         rm -rf aarya
@@ -39,7 +45,7 @@ jobs:
     - name: Add Android platform
       run: |
         cd aarya
-        cordova platform add android
+        cordova platform add android@latest
 
     - name: Build APK (debug)
       run: |
