@@ -1,0 +1,16 @@
+<?xml version='1.0' encoding='utf-8'?>
+<widget id="com.aarya.superapp" version="1.0.0" xmlns="http://www.w3.org/ns/widgets" xmlns:cdv="http://cordova.apache.org/ns/1.0">
+  <name>AaryaApp</name>
+  <description>
+    Aarya – AI SuperApp that creates videos, cartoons, apps and handles accounting by voice commands.
+  </description>
+  <author email="you@example.com" href="https://github.com">Sachin</author>
+  <content src="www/index.html" />
+  <preference name="SplashScreenDelay" value="0" />
+  <access origin="*" />
+  <allow-navigation href="*" />
+  <platform name="android">
+    <preference name="android-minSdkVersion" value="22" />
+    <preference name="android-targetSdkVersion" value="34" />
+  </platform>
+</widget>
