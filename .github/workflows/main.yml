@@ -1,3 +1,4 @@
+
 name: Build Aarya App APK
 
 on:
@@ -16,7 +17,7 @@ jobs:
       with:
         node-version: '18'
 
-    - name: Set up Java
+    - name: Set up Java 17
       uses: actions/setup-java@v4
       with:
         distribution: 'temurin'
@@ -25,16 +26,16 @@ jobs:
     - name: Set up Android SDK
       uses: android-actions/setup-android@v3
 
-    # 👉 जरूरी Android SDK packages install (ये missing होते हैं)
+    # ▶ जरूरी SDK पैकेज (stable set)
     - name: Install required Android SDK packages
       run: |
         yes | sdkmanager --licenses
-        sdkmanager "platform-tools" "platforms;android-34" "build-tools;34.0.0"
+        sdkmanager "platform-tools" "cmdline-tools;latest" "platforms;android-33" "build-tools;33.0.2"
 
-    - name: Install Cordova
+    - name: Install Cordova (CLI)
       run: npm install -g cordova@latest
 
-    # 👉 नया Cordova प्रोजेक्ट बनाओ और हमारी files कॉपी करो
+    # ▶ नया Cordova प्रोजेक्ट बनाओ और हमारी files कॉपी करो
     - name: Prepare Cordova project
       run: |
         rm -rf aarya
@@ -42,10 +43,11 @@ jobs:
         cp -r www aarya/www
         cp config.xml aarya/config.xml
 
+    # ▶ Android प्लेटफ़ॉर्म ऐड (stable)
     - name: Add Android platform
       run: |
         cd aarya
-        cordova platform add android@latest
+        cordova platform add android@12.0.1
 
     - name: Build APK (debug)
       run: |
